@@ -23,7 +23,9 @@ def compute_perplexity():
        perplexity += float(score.split()[0])  # assume log probability
 
     perplexity /= M
-    perplexity = 2 ** (-1 / perplexity)
+
+    product = 0
+    perplexity = product ** (-1/n)
 
     print "The perplexity is", perplexity
 
