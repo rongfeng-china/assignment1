@@ -1,31 +1,39 @@
 
+from generate_ngram import generate_ngrams
+import nltk
 import sys
 
 def main():
-    if len(sys.argv) < 2:
-        print "Usage: python input.py <dir> <file of sentences that were scored>"
-        exit(1)
+    method = sys.argv[1]
+    infile = open("811_a1_train/" +  'udhr-eng.txt.tra', 'r')
 
-    infile = open(sys.argv[1], "r")
-    scores = infile.readlines()
-    infile.close()
-    infile = open(sys.argv[2], 'r')
-    sentences = infile.readlines()
-    infile.close()
 
-    M = 0
+    corpus = infile.readlines()
+    char_array = [item for sublist in corpus for item in sublist]
+    n = 2
+    n_grams = generate_ngrams(char_array, n)
 
-    for sentence in sentences:
-        words = sentence.split()
-        M += len(words) + 1
 
-    perplexity = 0
-    for score in scores:
-       perplexity += float(score.split()[0])  # assume log probability
+    if method == "--unsmoothed":
+        ngram_list = list(n_grams)
+        # vocabCount = len(set(char_array))
+        ngram_count = ngram_list.count(ngram)
+        ngram_count / len(ngram_list)
 
-    perplexity /= M
-    perplexity = 2 ** (-1 / perplexity)
+    elif method == "--laplace":
+        freqDist = nltk.FreqDist(n_grams)
+        freqDist = nltk.LaplaceProbDist(freqDist)
+    # elif method == "--interpolation":
+    #     # freqDist = interpolation()
+    else:
+        raise ValueError("Invalid smoothign method: " + method)
 
-    print "The perplexity is", perplexity
+    print freqDist.freq(('e', 'a'))
+    print freqDist.prob(('a', 'e'))
+#
+# def laplace():
+#     freqDist = nlt.FreqDist(n_grams)
+
+
 
 if __name__ == "__main__": main()

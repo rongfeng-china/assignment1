@@ -18,8 +18,6 @@ def generate_ngrams(tokens, n):
     return n_grams
 
 
-
-
 def main():
     n = int(sys.argv[1])
     infile = open("811_a1_train/" +  'udhr-eng.txt.tra', 'r')
