@@ -3,17 +3,6 @@ import sys
 
 def generate_ngrams(tokens, n):
 
-    #
-    # if n == 1:
-    #     n_grams = nltk.word_tokenize(tokens)
-    #
-    # elif n == 2:
-    #     n_grams = nltk.bigrams(tokens)
-    # elif n == 3:
-    #     n_grams = nltk.trigrams(tokens)
-    #
-    # else:
-    #     raise ValueError("Value must be between 1 and 3, Invalid value: " + n)
     n_grams = nltk.ngrams(tokens, n)
     return n_grams
 

@@ -2,6 +2,14 @@
 from generate_ngram import generate_ngrams
 import nltk
 import sys
+class LanguageModel:
+    def __init__(self, n, tokens):
+        self.n = n
+        self.tokens = tokens
+        self.n_grams = generate_ngrams(tokens, n)
+        self.nprime_grams = generate_ngrams(tokens, n-1)
+        self.ngram_freqDist = nltk.FreqDist(self.n_grams)
+        self.nprime_freqDist = nltk.FreqDist(self.nprime_grams)
 
 def main():
     method = sys.argv[1]
@@ -11,16 +19,13 @@ def main():
 
     corpus = infile.readlines()
     char_array = [item for sublist in corpus for item in sublist]
-    n = 2
-    n_grams = generate_ngrams(char_array, n)
-    nprime_grams = generate_ngrams(char_array, n-1)
-    freqDist = nltk.FreqDist(n_grams)
-    nprime_freqDist = nltk.FreqDist(nprime_grams)
+    # char_array = "the first the second the third the fourth the first".split(' ')
+    n = 3
+    model = generate_model(n, char_array)
+
     print "correct value is 0.0425848295499"
-    print compute_mle(('e', 'a'), freqDist, nprime_freqDist, char_array)
-    #
-    #
-    #
+    print compute_mle(('e', 'a', 's'), model)
+
     # if method == "--unsmoothed":
     #     ngram_list = list(n_grams)
     #     # vocab_count = len(set(char_array))
@@ -43,22 +48,33 @@ def main():
     #     raise ValueError("Invalid smoothing method: " + method)
     # #
 
-def compute_mle(ngram, ngram_freqDist, nprime_freqDist, tokens):
+def generate_model(n, tokens):
+    return LanguageModel(n, tokens)
+
+
+def compute_mle(ngram, model):
 
     #TODO handle the case for unigrams
 
-    print ngram[0]
-    print(tokens.count(ngram[0]))
-    print(len(tokens))
+    # print ngram[0]
+    # print(model.tokens.count(ngram[0]))
+    # print(len(model.tokens))
     ngram_prime = ngram[0:len(ngram)-1]
-    print "ngram " + str(ngram)
+    # print "ngram " + str(ngram)
+    #
+    # print "ngram prime " + str(ngram_prime)
+    # print "ngram freq dist %f"%(model.ngram_freqDist.freq(ngram))
+    # print "nprime freq dist %f"%(model.nprime_freqDist.freq(ngram_prime))
+    # print len(model.tokens)
+    # add this to normalize frequencies; count of nprime will be 1 off and this throws off low counts.
+    normalization_factor = ((len(model.tokens)-(len(ngram)-1)) * 1.0 / (len(model.tokens)-(len(ngram_prime)-1)))
+    # print "normalization factor" + str(normalization_factor)
+    try:
+        mle = model.ngram_freqDist.freq(ngram) / model.nprime_freqDist.freq(ngram_prime) * normalization_factor
+        return mle
 
-    print "ngram prime " + str(ngram_prime)
-    print ngram_freqDist.freq(ngram)
-    print nprime_freqDist.freq(ngram_prime)
-    print len(tokens)
-    mle = ngram_freqDist.freq(ngram) / nprime_freqDist.freq(ngram_prime)
-    return mle
+    except ZeroDivisionError:
+        return 0
 
 #
 # def laplace():
