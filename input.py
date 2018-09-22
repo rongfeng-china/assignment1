@@ -72,9 +72,8 @@ def compute_mle(ngram, model):
     try:
         mle = model.ngram_freqDist.freq(ngram) / model.nprime_freqDist.freq(ngram_prime) * normalization_factor
         return mle
-
     except ZeroDivisionError:
-        return 0
+        return 0.00000000000000001
 
 #
 # def laplace():
