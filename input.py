@@ -44,6 +44,9 @@ def main():
     # #
 
 def compute_mle(ngram, ngram_freqDist, nprime_freqDist, tokens):
+
+    #TODO handle the case for unigrams
+
     print ngram[0]
     print(tokens.count(ngram[0]))
     print(len(tokens))
@@ -51,6 +54,9 @@ def compute_mle(ngram, ngram_freqDist, nprime_freqDist, tokens):
     print "ngram " + str(ngram)
 
     print "ngram prime " + str(ngram_prime)
+    print ngram_freqDist.freq(ngram)
+    print nprime_freqDist.freq(ngram_prime)
+    print len(tokens)
     mle = ngram_freqDist.freq(ngram) / nprime_freqDist.freq(ngram_prime)
     return mle
 
