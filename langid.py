@@ -1,4 +1,4 @@
-from input import *
+from mle import *
 from generate_ngram import generate_ngrams
 
 import os
