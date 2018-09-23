@@ -8,7 +8,6 @@ START_SYMBOL = '*'
 STOP_SYMBOL = 'STOP'
 MINUS_INFINITY_SENTENCE_LOG_PROB = -1000
 
-# TODO: IMPLEMENT THIS FUNCTION
 # Calculates unigram, bigram, and trigram probabilities given a training corpus
 # training_corpus: is a list of the sentences. Each sentence is a string with tokens separated by spaces, ending in a newline character.
 # This function outputs three python dictionaries, where the keys are tuples expressing the ngram and the value is the log probability of that ngram
@@ -46,7 +45,7 @@ def calc_probabilities(training_corpus):
     trigram_p = {k: math.log(float(v) / bigram_c[k[:2]], 2) for k, v in trigram_c.iteritems()}
     return unigram_p, bigram_p, trigram_p
 
-# Prints the output for q1
+
 # Each input is a python dictionary where keys are a tuple expressing the ngram, and the value is the log probability of that ngram
 def q1_output(unigrams, bigrams, trigrams, filename):
     # output probabilities
@@ -70,7 +69,6 @@ def q1_output(unigrams, bigrams, trigrams, filename):
     outfile.close()
 
 
-# TODO: IMPLEMENT THIS FUNCTION
 # Calculates scores (log probabilities) for every sentence
 # ngram_p: python dictionary of probabilities of uni-, bi- and trigrams.
 # n: size of the ngram you want to use to compute probabilities
@@ -107,7 +105,6 @@ def score_output(scores, filename):
         outfile.write(str(score) + '\n')
     outfile.close()
 
-# TODO: IMPLEMENT THIS FUNCTION
 # Calculates scores (log probabilities) for every sentence with a linearly interpolated model
 # Each ngram argument is a python dictionary where the keys are tuples that express an ngram and the value is the log probability of that ngram
 # Like score(), this function returns a python list of scores
