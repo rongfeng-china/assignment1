@@ -3,7 +3,6 @@ import collections
 import nltk
 import time
 
-# Constants to be used by you when you fill the functions
 START_SYMBOL = '*'
 STOP_SYMBOL = 'STOP'
 MINUS_INFINITY_SENTENCE_LOG_PROB = -1000
