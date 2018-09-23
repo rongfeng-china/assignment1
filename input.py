@@ -35,32 +35,87 @@ def main():
     print compute_mle(('e', 'a', 's'), model)
     print compute_mle_laplace(('e', 'a', 's'), model)
 
+def test():
+    method = sys.argv[1]
+    infile = open('811_a1_train/' + 'udhr-eng.txt.tra', 'r')
+    # infile = open('sentence.tra', 'r')
 
-    # if method == "--unsmoothed":
-    #     ngram_list = list(n_grams)
-    #     # vocab_count = len(set(char_array))
-    #     # ngram_count = ngram_list.count(ngram)
-    #     # ngram_count / len(ngram_list)
-    #     # freqDist = nltk.FreqDist(n_grams)
-    #     # print freqDist.freq(('e', 'a'))
-    #     # print freqDist.freq(('a', 'e'))
-    #     # ngram_count = ngram_list.count(ngram)
-    #     # ngram_count / len(ngram_list)
-    #     # print ngram_list.count(('e', 'a')) * 1.0 / char_array.count('a')
-    #
-    # elif method == "--laplace":
-    #     freqDist = nltk.FreqDist(n_grams)
-    #     # freqDist = nltk.LaplaceProbDist(freqDist)
-    #     retrun freqDist;
-    # # elif method == "--interpolation":
-    # #     # freqDist = interpolation()
-    # else:
-    #     raise ValueError("Invalid smoothing method: " + method)
-    # #
+
+    corpus = infile.readlines()
+    char_array = [item for sublist in corpus for item in sublist]
+    # char_array = "the first the second the third the fourth the first".split(' ')
+    n = 3
+    model = generate_model(n, char_array)
+
+    print compute_mle_interpolation(('e', 'a', 's'), model)
 
 def generate_model(n, tokens):
     # TODO: special case for unigram
     return LanguageModel(n, tokens)
+
+def compute_mle_interpolation(ngram, model):
+    lambdas = calc_lambdas(ngram, model)
+    print lambdas
+    lambda_sum = sum(lambdas)
+    normalized_lambdas = [float(i)/lambda_sum for i in lambdas]
+    weighted_mles = []
+    print "length of ngram %d"%(len(ngram))
+    compute_weighted_mles(weighted_mles, normalized_lambdas, ngram, model)
+    return sum(weighted_mles)
+
+def compute_weighted_mles(mles, lambdas, ngram, model):
+    print "length of ngram %d"%(len(ngram))
+
+    if len(lambdas) != (len(ngram) + len(mles)):
+        raise ValueError("length of lambdas must equal length of ngram %d vs. %d"%(len(lambdas), len(ngram)))
+    if len(ngram) == 1:
+        mle = compute_mle(ngram, model) * lambdas[len(lambdas)-1]
+        return mles.append(mle)
+
+    mle = compute_mle(ngram, model) *  lambdas[len(lambdas) - len(ngram)]
+    mles.append(mle)
+    ngram_prime = ngram[0:len(ngram)-1]
+    compute_weighted_mles(mles, lambdas, ngram_prime, model)
+
+
+def calc_lambdas(ngram, model):
+    lambdas = [0] * len(ngram)
+    for gram in model.n_grams:
+        frequencies = []
+        calc_max_freq(frequencies, gram, model.tokens)
+        print(gram)
+        print(frequencies)
+        index = frequencies.index(max(frequencies, key = lambda x: x[0]))
+        print index
+        print max(frequencies, key = lambda x: x[0])[1]
+        lambdas[index] += + max(frequencies, key = lambda x: x[0])[1]
+        break
+
+    return lambdas
+
+
+
+def calc_max_freq(frequencies, ngram, tokens):
+    if len(ngram) == 1:
+        print("ngram of 1: %s"%(str(ngram)))
+        print("count of gram: %s"%(tokens.count(ngram)))
+        print len(tokens)
+        ngrams = list(generate_ngrams(tokens, 1))
+        freq = (1.0 * ngrams.count(ngram) -1)/ (len(tokens) -1)
+        return frequencies.append((freq, ngrams.count(ngram)))
+    ngrams = list(generate_ngrams(tokens, len(ngram)))
+
+    ngram_prime = ngram[0:len(ngram)-1]
+    ngrams_prime = list(generate_ngrams(tokens, len(ngram_prime)))
+    ngram_prime_count = ngrams_prime.count(ngram_prime)
+    if ngram_prime_count == 1:
+        frequencies.append((0, ngrams.count(ngram)))
+        calc_max_freq(frequencies, ngram_prime, tokens)
+    freq = (ngrams.count(ngram) - 1.0) /  (ngram_prime_count -1)
+
+    frequencies.append((freq, ngrams.count(ngram)))
+    calc_max_freq(frequencies, ngram_prime, tokens)
+
 
 def compute_mle_laplace(ngram, model):
     ngram_prime = ngram[0:len(ngram)-1]
@@ -105,4 +160,4 @@ def compute_mle(ngram, model):
     except ZeroDivisionError:
         return 0.00001
 
-if __name__ == "__main__": main()
+if __name__ == "__main__": test()

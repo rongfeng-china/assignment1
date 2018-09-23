@@ -6,9 +6,14 @@ import math
 
 
 def main():
-    perplexity = compute_perplexity((math.log(0.1) * 10), 10, True)
-    print "perplexity of textbook example: %f"%(perplexity)
-    exit(0)
+
+    # probabilities = [0.1] * 10
+    # print probabilities
+    # logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), filter(lambda x: x > 0, probabilities)))
+    # print logProduct
+    # perplexity = compute_perplexity(logProduct, 10, True)
+    # print "perplexity of textbook example: %f"%(perplexity)
+    # exit(0)
     n = 2
     training_dir = '811_a1_train/'
     dev_dir = '811_a1_dev/'
