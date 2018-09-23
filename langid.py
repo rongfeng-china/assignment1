@@ -6,6 +6,9 @@ import math
 
 
 def main():
+    perplexity = compute_perplexity((math.log(0.1) * 10), 10, True)
+    print "perplexity of textbook example: %f"%(perplexity)
+    exit(0)
     n = 2
     training_dir = '811_a1_train/'
     dev_dir = '811_a1_dev/'
@@ -37,13 +40,16 @@ def main():
             print probabilities
             logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), filter(lambda x: x > 0, probabilities)))
             # print filter(lambda x: x > 0, probabilities)
+
+            perplexity = compute_perplexity(logProduct, len(tokens), True)
             print("--------------------%s-----------------"%(file_name))
+
             print("log product %f"%(logProduct))
             doc_prob = math.exp(logProduct)
             print("prob %f"%(doc_prob))
             print("len %d"%(len(tokens)))
             prob_tuples.append((file_name, doc_prob))
-            perplexity = doc_prob ** (-1.0/len(tokens))
+            # perplexity = doc_prob ** (-1.0/len(tokens))
             print("perplexity %f"%(perplexity))
             print("---------------------------------------")
             perplexities.append((file_name, perplexity))
@@ -57,6 +63,18 @@ def main():
 
         print ("lowest perplexity value: %s"%(str(perplexities[0])))
         # print perplexity_dict['udhr-als.txt.tra']
+
+# assume log product
+def compute_perplexity(prob, N, is_logprob):
+
+    if is_logprob:
+        prob = math.exp(prob)
+
+    perplexity = prob ** (-1.0 / N)
+    return perplexity
+
+
+
 
 
 if __name__ == "__main__": main()
