@@ -2,12 +2,20 @@
 from generate_ngram import generate_ngrams
 import nltk
 import sys
+# from enum import enum
+
+#
+# class Smoothing(Enum):
+#     UNSMOOTHED = 1
+#     LAPLACE = 2
+#     INTERPOLATION = 3
+
 class LanguageModel:
     def __init__(self, n, tokens):
         self.n = n
         self.tokens = tokens
-        self.n_grams = generate_ngrams(tokens, n)
-        self.nprime_grams = generate_ngrams(tokens, n-1)
+        self.n_grams = list(generate_ngrams(tokens, n))
+        self.nprime_grams = list(generate_ngrams(tokens, n-1))
         self.ngram_freqDist = nltk.FreqDist(self.n_grams)
         self.nprime_freqDist = nltk.FreqDist(self.nprime_grams)
 
@@ -23,8 +31,10 @@ def main():
     n = 3
     model = generate_model(n, char_array)
 
-    print "correct value is 0.0425848295499"
+
     print compute_mle(('e', 'a', 's'), model)
+    print compute_mle_laplace(('e', 'a', 's'), model)
+
 
     # if method == "--unsmoothed":
     #     ngram_list = list(n_grams)
@@ -49,8 +59,28 @@ def main():
     # #
 
 def generate_model(n, tokens):
+    # TODO: special case for unigram
     return LanguageModel(n, tokens)
 
+def compute_mle_laplace(ngram, model):
+    ngram_prime = ngram[0:len(ngram)-1]
+    ngram_prime = ngram[0:len(ngram)-1]
+    vocab = set(model.tokens)
+
+    # print "ngram " + str(ngram)
+    #
+    # print "ngram prime " + str(ngram_prime)
+    # print "ngram freq dist %f"%(model.ngram_freqDist.freq(ngram))
+    # print "nprime freq dist %f"%(model.nprime_freqDist.freq(ngram_prime))
+    # print len(model.tokens)
+    # add this to normalize frequencies; count of nprime will be 1 off and this throws off low counts.
+    # normalization_factor = ( + len(vocab)) * 1.0 / (len(vocab) len(model.tokens)-(len(ngram_prime)-1)))
+    # print "normalization factor" + str(normalization_factor)
+    # ngram_normalizationfactor = (len(model.tokens)-(len(ngram)-1) / (len(model.tokens)-(len(ngram)-1) + len(vocab))
+    # nprime = (len(model.tokens)-(len(ngram)-1) / (len(model.tokens)-(len(ngram)-1) + len(vocab))
+    mle = (model.n_grams.count(ngram) + 1.) / (model.nprime_grams.count(ngram_prime) + len(vocab))
+
+    return mle
 
 def compute_mle(ngram, model):
 
@@ -74,11 +104,5 @@ def compute_mle(ngram, model):
         return mle
     except ZeroDivisionError:
         return 0.00001
-
-#
-# def laplace():
-#     freqDist = nlt.FreqDist(n_grams)
-
-
 
 if __name__ == "__main__": main()

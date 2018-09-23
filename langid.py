@@ -13,7 +13,7 @@ def main():
     dev_files = os.listdir(dev_dir)
     models_dict = dict()
     for file in filter(lambda x: x.endswith('.tra'), training_files):
-        print('Generating model for %s ...'%(file))
+        # print('Generating model for %s ...'%(file))
         infile = open(training_dir + file, 'r')
 
         corpus = infile.readlines()
@@ -48,7 +48,7 @@ def main():
             print("---------------------------------------")
             perplexities.append((file_name, perplexity))
         prob_tuples.sort(key=lambda x:x[1])
-        print prob_tuples
+        # print prob_tuples
 
         perplexities.sort(key=lambda x:x[1])
 
