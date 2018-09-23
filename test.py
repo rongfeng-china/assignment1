@@ -1,6 +1,7 @@
 import nltk
 import sys
 import collections
+import math
 
 
 ## Add space in between words for each sentence. 
@@ -31,11 +32,13 @@ def generate_ngrams(corpus, n):
  
 ## Sort keys and calculate probability
 
-def sorted_vocabulary(unique_keys):
-    full_vocab = list(self.unigram_frequencies.keys())
-    full_vocab.sort()
-    full_vocab.append(UNK)
-    return full_vocab
+def calculate_prob(freqDist_n_minus_1_sorted, freqDist_sorted):
+    for k, v in freqDist_sorted:
+        print k,
+        print v
+         
+    prob = {k: math.log(float(v) / freqDist_n_minus_1_sorted[k[:-1]], 2) for k, v in freqDist_sorted}
+    return prob
 
 def main():
     #n = int(sys.argv[1])
@@ -46,11 +49,10 @@ def main():
     freqDist_n_minus_1 = generate_ngrams(corpus, n-1)
     freqDist = generate_ngrams(corpus, n)
 
+    freqDist_n_minus_1_sorted = sorted(freqDist_n_minus_1.items(), key=lambda item:item[0])
+    freqDist_sorted = sorted(freqDist.items(), key=lambda item:item[0])
 
-    print sorted(freqDist_n_minus_1.items(), key=lambda item:item[0])
-
-    print sorted(freqDist.items(), key=lambda item:item[0])
-
-
+    probability = calculate_prob(freqDist_n_minus_1_sorted, freqDist_sorted)
+    print probability
 
 if __name__ == "__main__": main()
