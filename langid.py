@@ -47,8 +47,8 @@ def main():
         perplexities.sort()
 
 
-        print perplexities[0]
-        print perplexity_dict['udhr-als.txt.tra']
+        #print perplexities[0]
+        #print perplexity_dict['udhr-als.txt.tra']
 
 
 
