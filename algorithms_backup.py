@@ -44,6 +44,30 @@ def calc_probabilities(training_corpus):
     trigram_p = {k: math.log(float(v) / bigram_c[k[:2]], 2) for k, v in trigram_c.iteritems()}
     return unigram_p, bigram_p, trigram_p
 
+'''
+# Each input is a python dictionary where keys are a tuple expressing the ngram, and the value is the log probability of that ngram
+def q1_output(unigrams, bigrams, trigrams, filename):
+    # output probabilities
+    outfile = open(filename, 'w')
+
+    unigrams_keys = unigrams.keys()
+    unigrams_keys.sort()
+    for unigram in unigrams_keys:
+        outfile.write('UNIGRAM ' + unigram[0] + ' ' + str(unigrams[unigram]) + '\n')
+
+    bigrams_keys = bigrams.keys()
+    bigrams_keys.sort()
+    for bigram in bigrams_keys:
+        outfile.write('BIGRAM ' + bigram[0] + ' ' + bigram[1]  + ' ' + str(bigrams[bigram]) + '\n')
+
+    trigrams_keys = trigrams.keys()
+    trigrams_keys.sort()    
+    for trigram in trigrams_keys:
+        outfile.write('TRIGRAM ' + trigram[0] + ' ' + trigram[1] + ' ' + trigram[2] + ' ' + str(trigrams[trigram]) + '\n')
+
+    outfile.close()
+'''
+
 # Calculates scores (log probabilities) for every sentence
 # ngram_p: python dictionary of probabilities of uni-, bi- and trigrams.
 # n: size of the ngram you want to use to compute probabilities
@@ -71,6 +95,16 @@ def score(ngram_p, n, corpus):
         scores.append(sentence_score)
     return scores
 
+'''
+# Outputs a score to a file
+# scores: list of scores
+# filename: is the output file name
+def score_output(scores, filename):
+    outfile = open(filename, 'w')
+    for score in scores:
+        outfile.write(str(score) + '\n')
+    outfile.close()
+'''
 
 # Calculates scores (log probabilities) for every sentence with a linearly interpolated model
 # Each ngram argument is a python dictionary where the keys are tuples that express an ngram and the value is the log probability of that ngram
@@ -116,7 +150,7 @@ DATA_PATH = '811_a1_train/'
 DEV_PATH = '811_a1_dev/'
 OUTPUT_PATH = 'output/'
 
-
+# DO NOT MODIFY THE MAIN FUNCTION
 def process(train_file):
     # get data
     infile = open(DATA_PATH + train_file, 'r') 
@@ -127,6 +161,11 @@ def process(train_file):
 
     # calculate ngram probabilities 
     unigrams, bigrams, trigrams = calc_probabilities(corpus)
+    #q1_output(unigrams, bigrams, trigrams, OUTPUT_PATH + 'A1.txt')
+
+    # score sentences 
+    #triscores = score(trigrams, 3, corpus)
+    #score_output(triscores, OUTPUT_PATH + 'A2.tri.txt')
 
     return unigrams,bigrams,trigrams
 

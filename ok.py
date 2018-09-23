@@ -14,7 +14,7 @@ def main():
     models_dict = dict()
     
     for file in filter(lambda x: x.endswith('tra'), training_files):
-        #print('Generating model for %s ...'%(file))
+        print('Generating model for %s ...'%(file))
         unigrams, bigrams, trigrams = process(file)
         models_dict.update({file:[unigrams,bigrams,trigrams]})
 
