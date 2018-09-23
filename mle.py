@@ -54,17 +54,18 @@ def generate_model(n, tokens):
     return LanguageModel(n, tokens)
 
 def compute_mle_interpolation(ngram, model):
+    # print("calling interpolation")
     lambdas = calc_lambdas(ngram, model)
-    print lambdas
+
     lambda_sum = sum(lambdas)
     normalized_lambdas = [float(i)/lambda_sum for i in lambdas]
     weighted_mles = []
-    print "length of ngram %d"%(len(ngram))
+
     compute_weighted_mles(weighted_mles, normalized_lambdas, ngram, model)
     return sum(weighted_mles)
 
 def compute_weighted_mles(mles, lambdas, ngram, model):
-    print "length of ngram %d"%(len(ngram))
+
 
     if len(lambdas) != (len(ngram) + len(mles)):
         raise ValueError("length of lambdas must equal length of ngram %d vs. %d"%(len(lambdas), len(ngram)))
@@ -83,11 +84,7 @@ def calc_lambdas(ngram, model):
     for gram in model.n_grams:
         frequencies = []
         calc_max_freq(frequencies, gram, model.tokens)
-        print(gram)
-        print(frequencies)
         index = frequencies.index(max(frequencies, key = lambda x: x[0]))
-        print index
-        print max(frequencies, key = lambda x: x[0])[1]
         lambdas[index] += + max(frequencies, key = lambda x: x[0])[1]
         break
 
@@ -97,9 +94,7 @@ def calc_lambdas(ngram, model):
 
 def calc_max_freq(frequencies, ngram, tokens):
     if len(ngram) == 1:
-        print("ngram of 1: %s"%(str(ngram)))
-        print("count of gram: %s"%(tokens.count(ngram)))
-        print len(tokens)
+
         ngrams = list(generate_ngrams(tokens, 1))
         freq = (1.0 * ngrams.count(ngram) -1)/ (len(tokens) -1)
         return frequencies.append((freq, ngrams.count(ngram)))
@@ -118,6 +113,8 @@ def calc_max_freq(frequencies, ngram, tokens):
 
 
 def compute_mle_laplace(ngram, model):
+    # print("calling laplace")
+
     ngram_prime = ngram[0:len(ngram)-1]
     ngram_prime = ngram[0:len(ngram)-1]
     vocab = set(model.tokens)
@@ -138,6 +135,7 @@ def compute_mle_laplace(ngram, model):
     return mle
 
 def compute_mle(ngram, model):
+    # print("calling unsmoothed")
 
     #TODO handle the case for unigrams
 
