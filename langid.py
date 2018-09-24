@@ -65,11 +65,14 @@ def main():
             # print probabilities
             # print("number of 0s: %d", probabilities.count(0))
             # logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), filter(lambda x: x > 0, probabilities)))
+            if probabilities.contains(0):
+                perplexity = float('nan')
+            else:
 
-            logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), map(lambda x: 0.001 if x == 0 else x, probabilities)))
+                logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), map(lambda x: 0.001 if x == 0 else x, probabilities)))
             # print filter(lambda x: x > 0, probabilities)
 
-            perplexity = compute_perplexity(logProduct, len(ngrams), True)
+                perplexity = compute_perplexity(logProduct, len(ngrams), True)
             # print("--------------------%s-----------------"%(file_name))
             #
             # print("log product %f"%(logProduct))
