@@ -2,5 +2,6 @@
 *~
 811_a1_train/
 811_a1_dev/
+811_a1_test_final/
 *.pyc
 *.swp
