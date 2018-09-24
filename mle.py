@@ -19,6 +19,9 @@ class LanguageModel:
         self.ngram_freqDist = nltk.FreqDist(self.n_grams)
         self.nprime_freqDist = nltk.FreqDist(self.nprime_grams)
 
+
+
+
 def main():
     method = sys.argv[1]
     infile = open('811_a1_train/' + 'udhr-eng.txt.tra', 'r')
@@ -55,17 +58,18 @@ def generate_model(n, tokens):
 
 def compute_mle_interpolation(ngram, model):
     # print("calling interpolation")
-    lambdas = calc_lambdas(ngram, model)
+    lambdas = calc_lambdas(self.n_grams[0], self)
 
     lambda_sum = sum(lambdas)
     normalized_lambdas = [float(i)/lambda_sum for i in lambdas]
+
+    self.normalized_lambdas = normalized_lambdas
     weighted_mles = []
 
-    compute_weighted_mles(weighted_mles, normalized_lambdas, ngram, model)
+    compute_weighted_mles(weighted_mles, model.normalized_lambdas, ngram, model)
     return sum(weighted_mles)
 
 def compute_weighted_mles(mles, lambdas, ngram, model):
-
 
     if len(lambdas) != (len(ngram) + len(mles)):
         raise ValueError("length of lambdas must equal length of ngram %d vs. %d"%(len(lambdas), len(ngram)))
@@ -156,6 +160,6 @@ def compute_mle(ngram, model):
         mle = model.ngram_freqDist.freq(ngram) / model.nprime_freqDist.freq(ngram_prime) * normalization_factor
         return mle
     except ZeroDivisionError:
-        return 0.00001
+        return 0.0000
 
 if __name__ == "__main__": test()

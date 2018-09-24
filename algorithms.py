@@ -25,6 +25,7 @@ def calc_probabilities(training_corpus):
 
         # bigrams
         for bigram in nltk.bigrams(tokens2):
+
             bigram_c[bigram] += 1
 
         # trigrams
@@ -102,7 +103,7 @@ def pre_process(corpus):
             sentence_converted += ' '.join(word)
             sentence_converted += ' _ '
         sentence_converted = sentence_converted[:-3]+'\n'
-        corpus_updated += sentence_converted 
+        corpus_updated += sentence_converted
     return corpus_updated.strip()
 
 DATA_PATH = '811_a1_train/'
@@ -112,13 +113,13 @@ OUTPUT_PATH = 'output/'
 
 def process(train_file):
     # get data
-    infile = open(DATA_PATH + train_file, 'r') 
+    infile = open(DATA_PATH + train_file, 'r')
     corpus = infile.readlines()
     corpus = pre_process(corpus)
     #print corpus
     infile.close()
 
-    # calculate ngram probabilities 
+    # calculate ngram probabilities
     unigrams, bigrams, trigrams = calc_probabilities(corpus)
 
     return unigrams,bigrams,trigrams
@@ -131,7 +132,7 @@ def calculate(test_file,unigrams,bigrams,trigrams):
     sample1 = pre_process(sample1)
     infile.close()
 
-    # linear interpolation 
+    # linear interpolation
     sample1scores = linearscore(unigrams, bigrams, trigrams, sample1)
 
     # calculate perplexity
@@ -148,7 +149,7 @@ def calculate(test_file,unigrams,bigrams,trigrams):
     perplexity = 2 ** (-1 * perplexity)
     return perplexity
 
-    
+
 def main():
     unigrams,bigrams,trigrams = process('udhr-eng.txt.tra')
     pp = calculate('udhr-deu_1996.txt.dev',unigrams,bigrams,trigrams)

@@ -27,13 +27,15 @@ def main():
     # perplexity = compute_perplexity(logProduct, 10, True)
     # print "perplexity of textbook example: %f"%(perplexity)
     # exit(0)
-    n = 2
+    n = 3
     training_dir = '811_a1_train/'
     dev_dir = '811_a1_dev/'
     training_files = os.listdir(training_dir)
     dev_files = os.listdir(dev_dir)
     models_dict = dict()
     for file in filter(lambda x: x.endswith('.tra'), training_files):
+
+    # for file in filter(lambda x: x.endswith('eng.txt.tra') or x.endswith('xho.txt.tra'), training_files):
         # print('Generating model for %s ...'%(file))
         infile = open(training_dir + file, 'r')
 
@@ -43,24 +45,29 @@ def main():
         models_dict.update({file : model})
 
     print ("dictionary size %d"%(len(models_dict)))
-    for file in filter(lambda x: x.endswith('eng.txt.dev') , dev_files)[0:1]:
+    for file in filter(lambda x: x.endswith('.dev') , dev_files):
         print('computing model for %s ...'%(file))
 
         infile = open(dev_dir + file, 'r')
 
         corpus = infile.readlines()
         tokens = [item for sublist in corpus for item in sublist]
-        prob_tuples = []
-        perplexities = []
+
         for file_name, model in models_dict.iteritems():
+            perplexities = []
+
             print("testing model: " + file_name)
-            ngrams = generate_ngrams(tokens, model.n)
+            ngrams = list(generate_ngrams(tokens, model.n))
+            # print("length of tokens %d"%(len(ngrams)))
             probabilities = [mle_method(ngram, model) for ngram in ngrams]
             # print probabilities
+            # print("number of 0s: %d", probabilities.count(0))
             logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), filter(lambda x: x > 0, probabilities)))
+
+            # logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), map(lambda x: 0.001 if x == 0 else x, probabilities)))
             # print filter(lambda x: x > 0, probabilities)
 
-            perplexity = compute_perplexity(logProduct, len(tokens), True)
+            perplexity = compute_perplexity(logProduct, len(ngrams), True)
             # print("--------------------%s-----------------"%(file_name))
             #
             # print("log product %f"%(logProduct))
@@ -72,27 +79,54 @@ def main():
             # print("perplexity %f"%(perplexity))
             # print("---------------------------------------")
             perplexities.append((file_name, perplexity))
-        prob_tuples.sort(key=lambda x:x[1])
+            print ("lowest perplexity value: %s"%(str(min(perplexities, key=lambda x:x[1]))))
+
+
         # print prob_tuples
 
-        perplexities.sort(key=lambda x:x[1])
 
+        # print perplexities
         # print ("lowest prob value: %s"%(str(prob_tuples[0])))
         # print("highest prob value: %s"%(str(prob_tuples[len(prob_tuples)-1])))
         #
-        # print ("lowest perplexity value: %s"%(str(perplexities[0])))
+        print ("lowest perplexity value: %s"%(str(min(perplexities, key=lambda x:x[1]))))
         # print perplexity_dict['udhr-als.txt.tra']
 
 # assume log product
 def compute_perplexity(prob, N, is_logprob):
-    print("prob: %f"%(prob))
-    if is_logprob:
-        prob = math.exp(prob)
+    # print("prob: %f"%(prob))
 
-    if prob == 0.0:
-        prob = 0.0000001
-    perplexity = prob ** (-1.0 / N)
+    perplexity = math.exp((-1.0 / N) * prob)
     return perplexity
+
+
+def test_compute_perplexity():
+
+    probabilities = [0.1] * 10
+    # print probabilities
+    logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), filter(lambda x: x > 0, probabilities)))
+    # print logProduct
+    perplexity = compute_perplexity(logProduct, 10, True)
+    print "perplexity of textbook example: %f"%(perplexity)
+    exit(0)
+    infile = open('1.tra', 'r')
+
+    n = 2
+    corpus = infile.readlines()
+    tokens = [item for sublist in corpus for item in sublist]
+    model = generate_model(n, tokens)
+
+    devfile = open('1.dev', 'r')
+    dev_corpus = devfile.readlines()
+    dev_tokens = [item for sublist in corpus for item in sublist]
+    ngrams = list(generate_ngrams(dev_tokens, model.n))
+
+    probabilities = [compute_mle_laplace(ngram, model) for ngram in ngrams]
+    # print probabilities
+    logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), filter(lambda x: x > 0, probabilities)))
+    print compute_perplexity(logProduct, len(ngrams), True)
+
+    # model = generate_model(n, tokens)
 
 
 if __name__ == "__main__": main()
