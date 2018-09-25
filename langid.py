@@ -16,17 +16,8 @@ def main():
     elif method_arg == "--interpolation":
         mle_method = compute_mle_interpolation
     else:
-        raise ValueError("Invalid option")
+        raise ValueError("Invalid option, must be one of --unsmoothed --laplace --interpolation")
 
-
-
-    # probabilities = [0.1] * 10
-    # print probabilities
-    # logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), filter(lambda x: x > 0, probabilities)))
-    # print logProduct
-    # perplexity = compute_perplexity(logProduct, 10, True)
-    # print "perplexity of textbook example: %f"%(perplexity)
-    # exit(0)
     n = 3
     training_dir = '811_a1_train/'
     # dev_dir = '811_a1_dev/'
@@ -65,14 +56,14 @@ def main():
             # print probabilities
             # print("number of 0s: %d", probabilities.count(0))
             # logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), filter(lambda x: x > 0, probabilities)))
-            if probabilities.contains(0):
-                perplexity = float('nan')
-            else:
+            # if 0 in probabilities:
+            #     perplexity = float('nan')
+            # else:
 
-                logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), map(lambda x: 0.001 if x == 0 else x, probabilities)))
-            # print filter(lambda x: x > 0, probabilities)
+            logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), map(lambda x: 0.001 if x == 0 else x, probabilities)))
+        # print filter(lambda x: x > 0, probabilities)
 
-                perplexity = compute_perplexity(logProduct, len(ngrams), True)
+            perplexity = compute_perplexity(logProduct, len(ngrams), True)
             # print("--------------------%s-----------------"%(file_name))
             #
             # print("log product %f"%(logProduct))
@@ -85,15 +76,6 @@ def main():
             # print("---------------------------------------")
             perplexities.append((file_name, perplexity))
 
-
-
-        # print prob_tuples
-
-
-        # print perplexities
-        # print ("lowest prob value: %s"%(str(prob_tuples[0])))
-        # print("highest prob value: %s"%(str(prob_tuples[len(prob_tuples)-1])))
-        #
         print ("lowest perplexity value: %s"%(str(min(perplexities, key=lambda x:x[1]))))
         # print perplexity_dict['udhr-als.txt.tra']
 
