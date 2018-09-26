@@ -81,17 +81,16 @@ class TestInterpolation(unittest.TestCase):
     def test_calc_max_freq(self):
         model = generate_model(3, grams)
         ngram = ('the', 'first', 'the')
-        frequencies = []
-        calc_max_freq(frequencies, ngram, model.tokens)
+        frequencies = calc_max_freq(ngram, model)
+
         self.assertEquals(len(frequencies), 3)
         self.assertEquals(frequencies[0], (0, 1))
         self.assertEquals(frequencies[1], (0, 1))
         self.assertEquals(frequencies[2], (0.4444444444444444, 5))
 
         ngram2 = ('first', 'the', 'second')
-        frequencies = []
 
-        calc_max_freq(frequencies, ngram2, model.tokens)
+        frequencies = calc_max_freq(ngram2, model)
         self.assertEquals(len(frequencies), 3)
         self.assertEquals(frequencies[0], (0, 1))
         self.assertEquals(frequencies[1], (0, 1))
@@ -122,17 +121,6 @@ class TestInterpolation(unittest.TestCase):
         self.assertEquals(weighted_mles[2], 0.4)
 
 
-    def test_foo(self):
-        model = generate_model(2, grams)
-        print "Each distribution"
-        print compute_mle_interpolation(('the', 'first'), model)
-        print compute_mle_interpolation(('the', 'second'), model)
-        print compute_mle_interpolation(('the', 'third'), model)
-        print compute_mle_interpolation(('the', 'fourth'), model)
-
-
-
-
     def test_interpolation_unigram(self):
         model = generate_model(1, grams)
         mle = compute_mle_interpolation(('the',), model)
@@ -155,8 +143,8 @@ class TestInterpolation(unittest.TestCase):
     def test_against_set(self):
         results = time_mle(2, compute_mle_interpolation)
         self.assertAlmostEqual(results[0], -588.7957882577233)
-        previous_best = 65
-        self.assertTrue((previous_best * 0.95)<= results[1] <= (previous_best * 1.05))
+        previous_best = 5
+        self.assertTrue((previous_best * 0.90)<= results[1] <= (previous_best * 1.1))
 
 
 
