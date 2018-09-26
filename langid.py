@@ -12,15 +12,18 @@ def main():
 
     method_arg = sys.argv[1]
 
+    n = 2
     if method_arg == "--unsmoothed":
         mle_method = compute_mle
+        n = 2
     elif method_arg == "--laplace":
         mle_method = compute_mle_laplace
+        n = 3
     elif method_arg == "--interpolation":
         mle_method = compute_mle_interpolation
     else:
         raise ValueError("Invalid option, must be one of --unsmoothed --laplace --interpolation")
-    n = 2
+
     training_dir = '811_a1_train/'
     # dev_dir = '811_a1_dev/'
     dev_dir = '811_a1_dev/'
@@ -90,7 +93,7 @@ def identify_language(mle_method, n, training_dir, dev_dir):
         if best_match[0].split('txt.tra')[0] == test_file.split('txt.dev')[0]:
             num_correct += 1
 
-        print "%f s to process %s"%(time.time()-file_start_time, test_file)
+        # print "%f s to process %s"%(time.time()-file_start_time, test_file)
 
         # print ("lowest perplexity value: %s"%(str(min(perplexities, key=lambda x:x[1]))))
         print ("%s %s %f %d"%(test_file, best_match[0], best_match[1], models_dict.values()[0].n ))

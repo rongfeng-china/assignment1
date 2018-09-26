@@ -96,10 +96,8 @@ def compute_mle_interpolation(ngram, model):
     if len(ngram) == 1:
         return compute_mle(ngram, model) # should be the same as unsmoothed model
 
-
-
     # print model.normalized_lambdas
-    weighted_mles = compute_weighted_mles(weighted_mles, model.normalized_lambdas, ngram, model)
+    weighted_mles = compute_weighted_mles(model.normalized_lambdas, ngram, model)
     # print "MLE: %f"%(sum(weighted_mles))
     return sum(weighted_mles)
 
@@ -108,37 +106,46 @@ def calc_normalized_lambdas(lambdas):
     normalized_lambdas = [float(i)/lambda_sum for i in lambdas]
     return normalized_lambdas
 
-def compute_weighted_mles(lambdas, ngram, model):
+def compute_weighted_mles(lambdas, starting_ngram, model):
 
-    # for x in lambdas:
-    #
-    #     mle = compute_mle(ngram, generate_model(len(ngram), model.tokens)) * x
-    #     mles.append(mle)
+
 
     all_freqs = model.all_freqs
+    ngram = starting_ngram
+    weighted_mles = []
+    while len(ngram) > 1:
+        ngram_prime = ngram[0:len(ngram)-1]
+        i = len(lambdas) -len(ngram)
+        i_prime= len(lambdas)-len(ngram) +1
+        # print "i %d i prime %d"%(i, i_prime)
+        mle = compute_mle_arbitrary(ngram, all_freqs[i],
+                                        all_freqs[i_prime], model)
+        # print "MLE %f"%(mle)
+        weighted_mle = lambdas[len(lambdas)-len(ngram)] * mle
+        weighted_mles.append(weighted_mle)
 
+        ngram = ngram_prime    #
+    if len(ngram) == 1:
+        # print "length 1"
+        # print ngram
+        ngram_count = model.all_grams[len(model.all_grams)-1].count(ngram)
+        # print "ngram count %d"%(ngram_count)
+        mle =  float(ngram_count)/ len(model.tokens)
+        # print "mle: %f"%(mle)
+        weighted_mle = lambdas[len(lambdas)-len(ngram)] * mle
+        weighted_mles.append(weighted_mle)
 
-    weighted_mles = map(lambda x: compute_mle(ngram, all_freqs[len(lambdas) -len(ngram)],
-                                                all_freqs[len(lambdas)-len(ngram)-1], model))
-    # if len(ngram) == 1:
-    #     mle = compute_mle(ngram, generate_model(len(ngram), model.tokens)) * lambdas[len(lambdas)-1]
+    # print "weighted MLES"
+    # print weighted_mles
     #
-    #     # print "MLE of %s: %f"%(str(ngram), mle)
-    #
-    #     return mles.append(mle)
-    #
-    # mle = compute_mle(ngram, generate_model(len(ngram), model.tokens)) * lambdas[len(lambdas) - len(ngram)]
-    #
-    # # print "MLE of %s: %f"%(str(ngram), mle)
-    # mles.append(mle)
-    # ngram_prime = ngram[0:len(ngram)-1]
-    # compute_weighted_mles(mles, lambdas, ngram_prime, model)
-    #
-    # return mles
+    # print "lambdas"
+    # print lambdas
+    return weighted_mles
+
 
 
 def calc_lambdas(model):
-    print "calc lambdas called..."
+    # print "calc lambdas called..."
     # print model.all_grams
     # print model.all_freqs
     start_time = time.time()
@@ -150,7 +157,7 @@ def calc_lambdas(model):
         index = frequencies.index(max(frequencies, key = lambda x: x[0]))
         lambdas[index] += + max(frequencies, key = lambda x: x[0])[1]
 
-    print "time to calc lambdas: %f"%(time.time()-start_time)
+    # print "time to calc lambdas: %f"%(time.time()-start_time)
     return lambdas
 
 def calc_max_freq(starting_ngram, model):
@@ -181,59 +188,6 @@ def calc_max_freq(starting_ngram, model):
     return frequencies
 
 
-
-# def calc_max_freq(frequencies, starting_ngram, tokens):
-#     ngram = starting_ngram
-#     start_time = time.time()
-#     ngrams = list(generate_ngrams(tokens, len(ngram)))
-#     ngram_freq_dist = nltk.FreqDist(ngrams)
-#
-#     while len(ngram) > 1:
-#
-#         ngram_prime = ngram[1:len(ngram)]
-#         ngrams_prime= list(generate_ngrams(tokens, len(ngram_prime)))
-#         # nprime_freq_dist = nltk.FreqDist(ngrams)
-#
-#         ngram_prime_count = ngrams_prime.count(ngram_prime)
-#         if ngram_prime_count == 1:
-#             frequencies.append((0, ngrams.count(ngram)))
-#         else:
-#
-#             freq = (ngrams.count(ngram) - 1.0) /  (ngram_prime_count -1)
-#             frequencies.append((freq, ngrams.count(ngram)))
-#
-#
-#         ngram = ngram_prime
-#
-#         ngrams = ngrams_prime
-#
-#         # print "iteration %d: %f s elapsed since start"%(i, time.time()-start_time)
-#
-#     if len(ngram) == 1:
-#
-#         ngrams = list(generate_ngrams(tokens, 1))
-#         freq = (1.0 * ngrams.count(ngram) -1)/ (len(tokens) -1)
-#         return frequencies.append((freq, ngrams.count(ngram)))
-#
-#
-#
-#
-#
-#     # ngrams = list(generate_ngrams(tokens, len(ngram)))
-#     #
-#     # ngram_prime = ngram[1:len(ngram)]
-#     # ngrams_prime = list(generate_ngrams(tokens, len(ngram_prime)))
-#     # ngram_prime_count = ngrams_prime.count(ngram_prime)
-#     # if ngram_prime_count == 1:
-#     #     frequencies.append((0, ngrams.count(ngram)))
-#     #     calc_max_freq(frequencies, ngram_prime, tokens)
-#     # else:
-#     #
-#     #     freq = (ngrams.count(ngram) - 1.0) /  (ngram_prime_count -1)
-#     #     frequencies.append((freq, ngrams.count(ngram)))
-#     #     calc_max_freq(frequencies, ngram_prime, tokens)
-
-
 def compute_mle_laplace(ngram, model):
     # print("calling laplace")
     if len(ngram) != model.n:
@@ -252,11 +206,33 @@ def compute_mle_laplace(ngram, model):
 
     return mle
 
+def compute_mle_arbitrary(ngram, ngram_freqDist, nprime_freqDist, model):
+
+    if len(ngram) == 1:
+
+        gram_count = ngram_freqDist.freq(ngram) * ngram_freqDist.N()
+        mle = gram_count/ len(model.tokens)
+        return mle
+    ngram_prime = ngram[0:len(ngram)-1]
+    normalization_factor = ((len(model.tokens)-(len(ngram)-1)) * 1.0 / (len(model.tokens)-(len(ngram_prime)-1)))
+    # print "normalization factor" + str(normalization_factor)
+    # print "frequencies"
+    # print "%s %f"%(str(ngram), ngram_freqDist.freq(ngram))
+    # print "%s %f"%(str(ngram_prime), nprime_freqDist.freq(ngram_prime))
+    # print (ngram_freqDist)
+    # print str(nprime_freqDist)
+    try:
+        mle = ngram_freqDist.freq(ngram) / nprime_freqDist.freq(ngram_prime) * normalization_factor
+
+        return mle
+    except ZeroDivisionError:
+        return 0.0
+
 def compute_mle(ngram, model):
 
-    if len(ngram) != model.n:
-        print "The ngram%s"%(ngram)
-        raise ValueError("Cannot compute on n-gram with length %d on model with length %d"%(len(ngram), model.n))
+    # if len(ngram) != model.n:
+    #     print "The ngram%s"%(ngram)
+    #     raise ValueError("Cannot compute on n-gram with length %d on model with length %d"%(len(ngram), model.n))
     if len(ngram) == 1:
 
         gram_count = float(model.n_grams.count(ngram))

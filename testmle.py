@@ -113,9 +113,9 @@ class TestInterpolation(unittest.TestCase):
     def test_weighted_mles(self):
         model = generate_model(3, grams)
         normalized_lambdas = [0.12, 0.08, 0.8]
-        weighted_mles = []
+
         ngram = ('the', 'first', 'the')
-        compute_weighted_mles(weighted_mles, normalized_lambdas, ngram, model)
+        weighted_mles = compute_weighted_mles(normalized_lambdas, ngram, model)
         self.assertEquals(weighted_mles[0], 0.06)
         self.assertEquals(weighted_mles[1], 0.032)
         self.assertEquals(weighted_mles[2], 0.4)
@@ -143,7 +143,7 @@ class TestInterpolation(unittest.TestCase):
     def test_against_set(self):
         results = time_mle(2, compute_mle_interpolation)
         self.assertAlmostEqual(results[0], -588.7957882577233)
-        previous_best = 5
+        previous_best = 0.14
         self.assertTrue((previous_best * 0.90)<= results[1] <= (previous_best * 1.1))
 
 
