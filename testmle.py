@@ -129,6 +129,8 @@ class TestInterpolation(unittest.TestCase):
     #     model = generate_model(2, grams)
     #     mle = compute_mle_interpolation(('the', 'second'), model)
     #     self.assertEquals(mle, 0)
+    def test_interpolation_trigram(self):
+        print "not implemented"
 
     # def test_against_set(self):
     #     results = time_mle(2, compute_mle_interpolation)

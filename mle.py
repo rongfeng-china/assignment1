@@ -17,9 +17,11 @@ class LanguageModel:
 
 
     @property
-    def lambdas(self):
-        lambdas = calc_lambdas(model.n_grams[0], self)
-        return lambdas
+    def normalized_lambdas(self):
+        if not normalized_lambdas:
+            lambdas = calc_lambdas(model.n_grams[0], self)
+            self.normalized_lambdas = calc_normalized_lambdas(lambdas)
+        return self.normalized_lambdas
         # if not self.lambdas:
         #     lambdas = calc_lambdas(model.n_grams[0], self)
         #     self.lambdas = lambdas
@@ -82,8 +84,7 @@ def compute_mle_interpolation(ngram, model):
     print weighted_mles
     return sum(weighted_mles)
 
-def calc_normalized_lambdas(ngram, model):
-    lambdas = calc_lambdas(ngram, model)
+def calc_normalized_lambdas(lambdas):
     lambda_sum = sum(lambdas)
     normalized_lambdas = [float(i)/lambda_sum for i in lambdas]
 
