@@ -45,6 +45,15 @@ class TestUnsmoothed(unittest.TestCase):
         # probabilities = [mle_method(ngram, model) for ngram in ngrams]
         #
         # print("----- compute mle manually %s seconds ------ " % (time.time() - start))
+def time_mle(n, mle_method):
+    from nltk.book import text1
+    model = generate_model(n, text1)
+    ngrams = list(generate_ngrams(text1, model.n))
+    start = time.time()
+    probabilities = [mle_method(ngram, model) for ngram in ngrams]
+    print("----- compute mle %s took %s seconds ------ " % (mle_method, (time.time() - start)))
+
+
 
 class TestLaplace(unittest.TestCase):
 
@@ -53,13 +62,14 @@ class TestLaplace(unittest.TestCase):
 
     def test_laplace_bigram(self):
         model = generate_model(2, grams)
-        mle = compute_mle(('the', 'second'), model)
+        mle = compute_mle_laplace(('the', 'second'), model)
         self.assertAlmostEqual(mle, 0.2)
 
-        mle2 = compute_mle(('second', 'first'), model)
-        self.assertAlmostEqual(mle2, 0.0667)
+        # mle2 = compute_mle(('second', 'first'), model)
+        # self.assertAlmostEqual(mle2, 0.0667)
 
-
+class TestInterpolation(unittest.TestCase):
+    
 
 
 
@@ -67,5 +77,9 @@ class TestLaplace(unittest.TestCase):
 
 # class TestInterpolation(unittest.TestCase):
 
+if __name__ == '__time_mle__':
+    time_mle(sys.argv[1], sys.argv[2])
 if __name__ == '__main__':
-    unittest.main()
+    time_mle(2, compute_mle_laplace)
+
+    # unittest.main()

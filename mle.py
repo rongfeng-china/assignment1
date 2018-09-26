@@ -117,16 +117,24 @@ def compute_mle_laplace(ngram, model):
     if len(ngram) != model.n:
         raise ValueError('Cannot compute on n-gram with length %d on model with length %d'%(len(ngram), model.n))
 
+    if len(ngram) == 1:
+        print model.tokens
+        gram_count = float(model.n_grams.count(ngram))
+        print "gram count %f"%(gram_count)
+        print "number of tokens%d"%(len(model.tokens))
+        mle = gram_count/ len(model.tokens)
+        return mle
+
     ngram_prime = ngram[0:len(ngram)-1]
-    ngram_prime = ngram[0:len(ngram)-1]
+
     vocab = set(model.tokens)
 
     # print "ngram " + str(ngram)
     #
     # print "ngram prime " + str(ngram_prime)
-    # print "ngram freq dist %f"%(model.ngram_freqDist.freq(ngram))
-    # print "nprime freq dist %f"%(model.nprime_freqDist.freq(ngram_prime))
-    # print len(model.tokens)
+    print "ngram freq dist %f"%(model.ngram_freqDist.freq(ngram))
+    print "nprime freq dist %f"%(model.nprime_freqDist.freq(ngram_prime))
+    print len(vocab)
     # add this to normalize frequencies; count of nprime will be 1 off and this throws off low counts.
     # normalization_factor = ( + len(vocab)) * 1.0 / (len(vocab) len(model.tokens)-(len(ngram_prime)-1)))
     # print "normalization factor" + str(normalization_factor)
@@ -137,8 +145,6 @@ def compute_mle_laplace(ngram, model):
     return mle
 
 def compute_mle(ngram, model):
-
-    start = time.time()
 
     if len(ngram) != model.n:
         raise ValueError('Cannot compute on n-gram with length %d on model with length %d'%(len(ngram), model.n))
@@ -154,32 +160,32 @@ def compute_mle(ngram, model):
     # print "normalization factor" + str(normalization_factor)
     try:
         mle = model.ngram_freqDist.freq(ngram) / model.nprime_freqDist.freq(ngram_prime) * normalization_factor
-        print("----- compute mle manually %s seconds ------ " % (time.time() - start))
-        
-        return mle
-    except ZeroDivisionError:
-        return 0.0
 
-def compute_mle_manually(ngram, model):
-    start = time.time()
-
-    #TODO handle the case for unigrams
-
-    if len(ngram) == 1:
-        gram_count = float(model.n_grams.count(ngram))
-
-        mle = gram_count/ len(model.tokens)
-        return mle
-    ngram_prime = ngram[0:len(ngram)-1]
-    normalization_factor = ((len(model.tokens)-(len(ngram)-1)) * 1.0 / (len(model.tokens)-(len(ngram_prime)-1)))
-    normalization_factor = 1.0
-
-    try:
-        mle = float(model.n_grams.count(ngram)) / model.nprime_grams.count(ngram_prime)
-        print("----- compute mle manually %s seconds ------ " % (time.time() - start))
 
         return mle
     except ZeroDivisionError:
         return 0.0
+
+# def compute_mle_manually(ngram, model):
+#     start = time.time()
+#
+#     #TODO handle the case for unigrams
+#
+#     if len(ngram) == 1:
+#         gram_count = float(model.n_grams.count(ngram))
+#
+#         mle = gram_count/ len(model.tokens)
+#         return mle
+#     ngram_prime = ngram[0:len(ngram)-1]
+#     normalization_factor = ((len(model.tokens)-(len(ngram)-1)) * 1.0 / (len(model.tokens)-(len(ngram_prime)-1)))
+#     normalization_factor = 1.0
+#
+#     try:
+#         mle = float(model.n_grams.count(ngram)) / model.nprime_grams.count(ngram_prime)
+#         print("----- compute mle manually %s seconds ------ " % (time.time() - start))
+#
+#         return mle
+#     except ZeroDivisionError:
+#         return 0.0
 
 if __name__ == "__main__": test()
