@@ -19,7 +19,6 @@ class LanguageModel:
 
     @property
     def normalized_lambdas(self):
-        print "Calling normalized lambdas"
         if not self._normalized_lambdas:
             lambdas = calc_lambdas(self)
             self._normalized_lambdas = calc_normalized_lambdas(lambdas)
@@ -63,7 +62,6 @@ def generate_model(n, tokens):
     return LanguageModel(n, tokens)
 
 def compute_mle_interpolation(ngram, model):
-    print("calling interpolation")
     if len(ngram) != model.n:
         raise ValueError('Cannot compute on n-gram with length %d on model with length %d'%(len(ngram), model.n))
 
@@ -72,7 +70,8 @@ def compute_mle_interpolation(ngram, model):
 
     weighted_mles = []
 
-    compute_weighted_mles(weighted_mles, model.normalized_lambdas, ngram, model)    print "weighted mles"
+    # print model.normalized_lambdas
+    compute_weighted_mles(weighted_mles, model.normalized_lambdas, ngram, model)
 
     return sum(weighted_mles)
 
@@ -86,18 +85,20 @@ def compute_weighted_mles(mles, lambdas, ngram, model):
     #     raise ValueError("length of lambdas must equal length of ngram %d vs. %d"%(len(lambdas), len(ngram)))
     if len(ngram) == 1:
         mle = compute_mle(ngram, generate_model(len(ngram), model.tokens)) * lambdas[len(lambdas)-1]
+        print "MLE of %s: %f"%(str(ngram), mle)
+
         return mles.append(mle)
 
     mle = compute_mle(ngram, generate_model(len(ngram), model.tokens)) * lambdas[len(lambdas) - len(ngram)]
 
-    # print "MLE of %s: %f"%(str(ngram), mle)
+    print "MLE of %s: %f"%(str(ngram), mle)
     mles.append(mle)
     ngram_prime = ngram[0:len(ngram)-1]
     compute_weighted_mles(mles, lambdas, ngram_prime, model)
 
 
 def calc_lambdas(model):
-    print "calling calculate lambdas"
+
     lambdas = [0] * model.n
 
     for gram in model.n_grams:

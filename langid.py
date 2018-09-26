@@ -37,9 +37,9 @@ def main():
         model = generate_model(n, tokens)
         models_dict.update({file : model})
 
-    print ("dictionary size %d"%(len(models_dict)))
+    # print ("dictionary size %d"%(len(models_dict)))
     for file in filter(lambda x: x.endswith('.dev') , dev_files):
-        print('computing model for %s ...'%(file))
+        # print('computing model for %s ...'%(file))
 
         infile = open(dev_dir + file, 'r')
 
