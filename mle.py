@@ -14,18 +14,18 @@ class LanguageModel:
         self.nprime_grams = list(generate_ngrams(tokens, n-1))
         self.ngram_freqDist = nltk.FreqDist(self.n_grams)
         self.nprime_freqDist = nltk.FreqDist(self.nprime_grams)
+        self._normalized_lambdas = []
 
 
     @property
     def normalized_lambdas(self):
-        if not normalized_lambdas:
-            lambdas = calc_lambdas(model.n_grams[0], self)
-            self.normalized_lambdas = calc_normalized_lambdas(lambdas)
-        return self.normalized_lambdas
-        # if not self.lambdas:
-        #     lambdas = calc_lambdas(model.n_grams[0], self)
-        #     self.lambdas = lambdas
-        # return self.lambdas
+        print "Calling normalized lambdas"
+        if not self._normalized_lambdas:
+            lambdas = calc_lambdas(self)
+            self._normalized_lambdas = calc_normalized_lambdas(lambdas)
+
+        return self._normalized_lambdas
+
 
 def main():
     method = sys.argv[1]
@@ -70,41 +70,34 @@ def compute_mle_interpolation(ngram, model):
     if len(ngram) == 1:
         return compute_mle(ngram, model) # should be the same as unsmoothed model
 
-    lambdas = calc_lambdas(ngram, model)
-
-    print "lambdas"
-    print lambdas
-    lambda_sum = sum(lambdas)
-    normalized_lambdas = [float(i)/lambda_sum for i in lambdas]
-    print normalized_lambdas
-    model.normalized_lambdas = normalized_lambdas
     weighted_mles = []
 
-    weighted_mles = compute_weighted_mles(weighted_mles, model.normalized_lambdas, ngram, model)
-    print weighted_mles
+    compute_weighted_mles(weighted_mles, model.normalized_lambdas, ngram, model)    print "weighted mles"
+
     return sum(weighted_mles)
 
 def calc_normalized_lambdas(lambdas):
     lambda_sum = sum(lambdas)
     normalized_lambdas = [float(i)/lambda_sum for i in lambdas]
-
+    return normalized_lambdas
 def compute_weighted_mles(mles, lambdas, ngram, model):
 
-    if len(lambdas) != (len(ngram) + len(mles)):
-        raise ValueError("length of lambdas must equal length of ngram %d vs. %d"%(len(lambdas), len(ngram)))
+    # if len(lambdas) != (len(ngram) + len(mles)):
+    #     raise ValueError("length of lambdas must equal length of ngram %d vs. %d"%(len(lambdas), len(ngram)))
     if len(ngram) == 1:
-        mle = compute_mle(ngram, model) * lambdas[len(lambdas)-1]
+        mle = compute_mle(ngram, generate_model(len(ngram), model.tokens)) * lambdas[len(lambdas)-1]
         return mles.append(mle)
 
-    mle = compute_mle(ngram, model) *  lambdas[len(lambdas) - len(ngram)]
-    print "MLE: %f"%(mle)
+    mle = compute_mle(ngram, generate_model(len(ngram), model.tokens)) * lambdas[len(lambdas) - len(ngram)]
+
+    # print "MLE of %s: %f"%(str(ngram), mle)
     mles.append(mle)
     ngram_prime = ngram[0:len(ngram)-1]
     compute_weighted_mles(mles, lambdas, ngram_prime, model)
 
 
 def calc_lambdas(model):
-
+    print "calling calculate lambdas"
     lambdas = [0] * model.n
 
     for gram in model.n_grams:
@@ -165,9 +158,9 @@ def compute_mle_laplace(ngram, model):
 
 def compute_mle(ngram, model):
 
-    # if len(ngram) != model.n:
-    #     print "The ngram%s"%(ngram)
-    #     raise ValueError("Cannot compute on n-gram with length %d on model with length %d"%(len(ngram), model.n))
+    if len(ngram) != model.n:
+        print "The ngram%s"%(ngram)
+        raise ValueError("Cannot compute on n-gram with length %d on model with length %d"%(len(ngram), model.n))
     if len(ngram) == 1:
 
         gram_count = float(model.n_grams.count(ngram))
@@ -178,7 +171,6 @@ def compute_mle(ngram, model):
     # print "normalization factor" + str(normalization_factor)
     try:
         mle = model.ngram_freqDist.freq(ngram) / model.nprime_freqDist.freq(ngram_prime) * normalization_factor
-
 
         return mle
     except ZeroDivisionError:

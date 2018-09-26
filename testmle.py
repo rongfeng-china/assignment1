@@ -100,8 +100,7 @@ class TestInterpolation(unittest.TestCase):
     def test_calc_lambdas(self):
         model = generate_model(3, grams)
         lambdas = calc_lambdas(model)
-        print "test lambdas"
-        print lambdas
+
         self.assertEquals(len(lambdas), 3)
         self.assertEquals(lambdas[0], 3) #this is lambda 3
         self.assertEquals(lambdas[1], 2)
@@ -116,7 +115,12 @@ class TestInterpolation(unittest.TestCase):
         model = generate_model(3, grams)
         normalized_lambdas = [0.12, 0.08, 0.8]
         weighted_mles = []
-        compute_weighted_mles(weighted_mles, model.normalized_lambdas, ngram, model)
+        ngram = ('the', 'first', 'the')
+        compute_weighted_mles(weighted_mles, normalized_lambdas, ngram, model)
+        self.assertEquals(weighted_mles[0], 0.06)
+        self.assertEquals(weighted_mles[1], 0.032)
+        self.assertEquals(weighted_mles[2], 0.4)
+
 
     #
     # def test_interpolation_unigram(self):
@@ -130,7 +134,11 @@ class TestInterpolation(unittest.TestCase):
     #     mle = compute_mle_interpolation(('the', 'second'), model)
     #     self.assertEquals(mle, 0)
     def test_interpolation_trigram(self):
-        print "not implemented"
+        model = generate_model(3, grams)
+        ngram = ('the', 'first', 'the')
+
+        mle = compute_mle_interpolation(ngram, model)
+        self.assertEquals(mle, 0.492)
 
     # def test_against_set(self):
     #     results = time_mle(2, compute_mle_interpolation)
