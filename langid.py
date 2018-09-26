@@ -3,6 +3,7 @@ from generate_ngram import generate_ngrams
 
 import os
 import math
+import time
 
 
 def main():
@@ -17,15 +18,16 @@ def main():
         mle_method = compute_mle_interpolation
     else:
         raise ValueError("Invalid option, must be one of --unsmoothed --laplace --interpolation")
-
-    n = 3
+    n = 1
     training_dir = '811_a1_train/'
     # dev_dir = '811_a1_dev/'
     dev_dir = '811_a1_dev/'
 
     training_files = os.listdir(training_dir)
     dev_files = os.listdir(dev_dir)
+    dev_files.sort()
     models_dict = dict()
+    training_start_time = time.time()
     for file in filter(lambda x: x.endswith('.tra'), training_files):
 
     # for file in filter(lambda x: x.endswith('eng.txt.tra') or x.endswith('xho.txt.tra'), training_files):
@@ -37,33 +39,34 @@ def main():
         model = generate_model(n, tokens)
         models_dict.update({file : model})
 
-    # print ("dictionary size %d"%(len(models_dict)))
-    for file in filter(lambda x: x.endswith('.dev') , dev_files):
+    print ("dictionary size %d"%(len(models_dict)))
+    num_correct = 0
+    test_start_time = time.time()
+    for test_file in filter(lambda x: x.endswith('.dev') , dev_files):
         # print('computing model for %s ...'%(file))
 
-        infile = open(dev_dir + file, 'r')
+        infile = open(dev_dir + test_file, 'r')
 
         corpus = infile.readlines()
         tokens = [item for sublist in corpus for item in sublist]
         perplexities = []
 
-        for file_name, model in models_dict.iteritems():
+        for model_name, model in models_dict.iteritems():
 
             # print(" testing model: " + file_name)
             ngrams = list(generate_ngrams(tokens, model.n))
             # print("length of tokens %d"%(len(ngrams)))
             probabilities = [mle_method(ngram, model) for ngram in ngrams]
-            # print probabilities
-            # print("number of 0s: %d", probabilities.count(0))
-            # logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), filter(lambda x: x > 0, probabilities)))
-            # if 0 in probabilities:
-            #     perplexity = float('nan')
-            # else:
+            map_zeros = True
+            if 0 in probabilities:
+                perplexity = float('nan')
+            else:
+                if map_zeros:
+                    logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), map(lambda x: 0.001 if x == 0 else x, probabilities)))
+                else:
+                    logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), probabilities))
 
-            logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), map(lambda x: 0.001 if x == 0 else x, probabilities)))
-        # print filter(lambda x: x > 0, probabilities)
-
-            perplexity = compute_perplexity(logProduct, len(ngrams), True)
+                perplexity = compute_perplexity(logProduct, len(ngrams), True)
             # print("--------------------%s-----------------"%(file_name))
             #
             # print("log product %f"%(logProduct))
@@ -74,10 +77,20 @@ def main():
             # # perplexity = doc_prob ** (-1.0/len(tokens))
             # print("perplexity %f"%(perplexity))
             # print("---------------------------------------")
-            perplexities.append((file_name, perplexity))
+            perplexities.append((model_name, perplexity))
+        best_match = min(perplexities, key=lambda x:x[1])
+        if best_match[0].split('txt.tra')[0] == test_file.split('txt.dev')[0]:
+            num_correct += 1
 
-        print ("lowest perplexity value: %s"%(str(min(perplexities, key=lambda x:x[1]))))
+        # print ("lowest perplexity value: %s"%(str(min(perplexities, key=lambda x:x[1]))))
+        print ("%s %s %f %d"%(test_file, best_match[0], best_match[1], models_dict.values()[0].n ))
         # print perplexity_dict['udhr-als.txt.tra']
+    print "number correct: %d"%(num_correct)
+    finish_time = time.time()
+    total_time_elapsed = finish_time - training_start_time
+    training_time = test_start_time - training_start_time
+    test_time = finish_time - test_start_time
+    print("Training time: %f Test time: %f Total Time %f"%(training_time, test_time, total_time_elapsed))
 
 # assume log product
 def compute_perplexity(prob, N, is_logprob):
