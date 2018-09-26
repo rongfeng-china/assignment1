@@ -6,6 +6,7 @@ import time
 
 
 class LanguageModel:
+
     def __init__(self, n, tokens):
         self.n = n
         self.tokens = tokens
@@ -15,6 +16,14 @@ class LanguageModel:
         self.nprime_freqDist = nltk.FreqDist(self.nprime_grams)
 
 
+    @property
+    def lambdas(self):
+        lambdas = calc_lambdas(model.n_grams[0], self)
+        return lambdas
+        # if not self.lambdas:
+        #     lambdas = calc_lambdas(model.n_grams[0], self)
+        #     self.lambdas = lambdas
+        # return self.lambdas
 
 def main():
     method = sys.argv[1]
@@ -52,19 +61,31 @@ def generate_model(n, tokens):
     return LanguageModel(n, tokens)
 
 def compute_mle_interpolation(ngram, model):
-    # print("calling interpolation")
+    print("calling interpolation")
     if len(ngram) != model.n:
         raise ValueError('Cannot compute on n-gram with length %d on model with length %d'%(len(ngram), model.n))
-    lambdas = calc_lambdas(self.n_grams[0], self)
 
+    if len(ngram) == 1:
+        return compute_mle(ngram, model) # should be the same as unsmoothed model
+
+    lambdas = calc_lambdas(ngram, model)
+
+    print "lambdas"
+    print lambdas
     lambda_sum = sum(lambdas)
     normalized_lambdas = [float(i)/lambda_sum for i in lambdas]
-
-    self.normalized_lambdas = normalized_lambdas
+    print normalized_lambdas
+    model.normalized_lambdas = normalized_lambdas
     weighted_mles = []
 
-    compute_weighted_mles(weighted_mles, model.normalized_lambdas, ngram, model)
+    weighted_mles = compute_weighted_mles(weighted_mles, model.normalized_lambdas, ngram, model)
+    print weighted_mles
     return sum(weighted_mles)
+
+def calc_normalized_lambdas(ngram, model):
+    lambdas = calc_lambdas(ngram, model)
+    lambda_sum = sum(lambdas)
+    normalized_lambdas = [float(i)/lambda_sum for i in lambdas]
 
 def compute_weighted_mles(mles, lambdas, ngram, model):
 
@@ -75,22 +96,25 @@ def compute_weighted_mles(mles, lambdas, ngram, model):
         return mles.append(mle)
 
     mle = compute_mle(ngram, model) *  lambdas[len(lambdas) - len(ngram)]
+    print "MLE: %f"%(mle)
     mles.append(mle)
     ngram_prime = ngram[0:len(ngram)-1]
     compute_weighted_mles(mles, lambdas, ngram_prime, model)
 
 
-def calc_lambdas(ngram, model):
-    lambdas = [0] * len(ngram)
+def calc_lambdas(model):
+
+    lambdas = [0] * model.n
+
     for gram in model.n_grams:
+
         frequencies = []
         calc_max_freq(frequencies, gram, model.tokens)
         index = frequencies.index(max(frequencies, key = lambda x: x[0]))
         lambdas[index] += + max(frequencies, key = lambda x: x[0])[1]
-        break
+
 
     return lambdas
-
 
 
 def calc_max_freq(frequencies, ngram, tokens):
@@ -101,16 +125,17 @@ def calc_max_freq(frequencies, ngram, tokens):
         return frequencies.append((freq, ngrams.count(ngram)))
     ngrams = list(generate_ngrams(tokens, len(ngram)))
 
-    ngram_prime = ngram[0:len(ngram)-1]
+    ngram_prime = ngram[1:len(ngram)]
     ngrams_prime = list(generate_ngrams(tokens, len(ngram_prime)))
     ngram_prime_count = ngrams_prime.count(ngram_prime)
     if ngram_prime_count == 1:
         frequencies.append((0, ngrams.count(ngram)))
         calc_max_freq(frequencies, ngram_prime, tokens)
-    freq = (ngrams.count(ngram) - 1.0) /  (ngram_prime_count -1)
+    else:
 
-    frequencies.append((freq, ngrams.count(ngram)))
-    calc_max_freq(frequencies, ngram_prime, tokens)
+        freq = (ngrams.count(ngram) - 1.0) /  (ngram_prime_count -1)
+        frequencies.append((freq, ngrams.count(ngram)))
+        calc_max_freq(frequencies, ngram_prime, tokens)
 
 
 def compute_mle_laplace(ngram, model):
@@ -122,16 +147,16 @@ def compute_mle_laplace(ngram, model):
 
     vocab = set(model.tokens)
 
-    print "ngram freq dist %f"%(model.ngram_freqDist.freq(ngram))
-    print "nprime freq dist %f"%(model.nprime_freqDist.freq(ngram_prime))
+    # print "ngram freq dist %f"%(model.ngram_freqDist.freq(ngram))
+    # print "nprime freq dist %f"%(model.nprime_freqDist.freq(ngram_prime))
     # print len(vocab)
     n_gram_count = model.ngram_freqDist.freq(ngram) * model.ngram_freqDist.N() + 1
     n_prime_count = model.nprime_freqDist.freq(ngram_prime) * model.nprime_freqDist.N() + len(vocab)
     if len(ngram) == 1:
         n_prime_count = len(vocab) + len(model.tokens)
-    print("the n gram: %s"%(str(ngram)))
-    print "ngram count %f"%(n_gram_count)
-    print "nprime count %f"%(n_prime_count)
+    # print("the n gram: %s"%(str(ngram)))
+    # print "ngram count %f"%(n_gram_count)
+    # print "nprime count %f"%(n_prime_count)
 
     mle = n_gram_count / n_prime_count
 
@@ -139,13 +164,12 @@ def compute_mle_laplace(ngram, model):
 
 def compute_mle(ngram, model):
 
-    if len(ngram) != model.n:
-        raise ValueError('Cannot compute on n-gram with length %d on model with length %d'%(len(ngram), model.n))
+    # if len(ngram) != model.n:
+    #     print "The ngram%s"%(ngram)
+    #     raise ValueError("Cannot compute on n-gram with length %d on model with length %d"%(len(ngram), model.n))
     if len(ngram) == 1:
-        print model.tokens
+
         gram_count = float(model.n_grams.count(ngram))
-        print "gram count %f"%(gram_count)
-        print "number of tokens%d"%(len(model.tokens))
         mle = gram_count/ len(model.tokens)
         return mle
     ngram_prime = ngram[0:len(ngram)-1]
@@ -158,27 +182,5 @@ def compute_mle(ngram, model):
         return mle
     except ZeroDivisionError:
         return 0.0
-
-# def compute_mle_manually(ngram, model):
-#     start = time.time()
-#
-#     #TODO handle the case for unigrams
-#
-#     if len(ngram) == 1:
-#         gram_count = float(model.n_grams.count(ngram))
-#
-#         mle = gram_count/ len(model.tokens)
-#         return mle
-#     ngram_prime = ngram[0:len(ngram)-1]
-#     normalization_factor = ((len(model.tokens)-(len(ngram)-1)) * 1.0 / (len(model.tokens)-(len(ngram_prime)-1)))
-#     normalization_factor = 1.0
-#
-#     try:
-#         mle = float(model.n_grams.count(ngram)) / model.nprime_grams.count(ngram_prime)
-#         print("----- compute mle manually %s seconds ------ " % (time.time() - start))
-#
-#         return mle
-#     except ZeroDivisionError:
-#         return 0.0
 
 if __name__ == "__main__": test()
