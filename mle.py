@@ -57,6 +57,7 @@ def test():
 
     print compute_mle_interpolation(('e', 'a', 's'), model)
 
+
 def generate_model(n, tokens):
     # TODO: special case for unigram
     return LanguageModel(n, tokens)
@@ -72,17 +73,16 @@ def compute_mle_interpolation(ngram, model):
 
     # print model.normalized_lambdas
     compute_weighted_mles(weighted_mles, model.normalized_lambdas, ngram, model)
-
+    print "MLE: %f"%(sum(weighted_mles))
     return sum(weighted_mles)
 
 def calc_normalized_lambdas(lambdas):
     lambda_sum = sum(lambdas)
     normalized_lambdas = [float(i)/lambda_sum for i in lambdas]
     return normalized_lambdas
+
 def compute_weighted_mles(mles, lambdas, ngram, model):
 
-    # if len(lambdas) != (len(ngram) + len(mles)):
-    #     raise ValueError("length of lambdas must equal length of ngram %d vs. %d"%(len(lambdas), len(ngram)))
     if len(ngram) == 1:
         mle = compute_mle(ngram, generate_model(len(ngram), model.tokens)) * lambdas[len(lambdas)-1]
         # print "MLE of %s: %f"%(str(ngram), mle)
@@ -142,16 +142,10 @@ def compute_mle_laplace(ngram, model):
 
     vocab = set(model.tokens)
 
-    # print "ngram freq dist %f"%(model.ngram_freqDist.freq(ngram))
-    # print "nprime freq dist %f"%(model.nprime_freqDist.freq(ngram_prime))
-    # print len(vocab)
     n_gram_count = model.ngram_freqDist.freq(ngram) * model.ngram_freqDist.N() + 1
     n_prime_count = model.nprime_freqDist.freq(ngram_prime) * model.nprime_freqDist.N() + len(vocab)
     if len(ngram) == 1:
         n_prime_count = len(vocab) + len(model.tokens)
-    # print("the n gram: %s"%(str(ngram)))
-    # print "ngram count %f"%(n_gram_count)
-    # print "nprime count %f"%(n_prime_count)
 
     mle = n_gram_count / n_prime_count
 

@@ -1,5 +1,6 @@
 from mle import *
 from generate_ngram import generate_ngrams
+from perplexity import *
 
 import os
 import math
@@ -7,6 +8,7 @@ import time
 
 
 def main():
+
 
     method_arg = sys.argv[1]
 
@@ -18,10 +20,24 @@ def main():
         mle_method = compute_mle_interpolation
     else:
         raise ValueError("Invalid option, must be one of --unsmoothed --laplace --interpolation")
-    n = 1
+    n = 2
     training_dir = '811_a1_train/'
     # dev_dir = '811_a1_dev/'
     dev_dir = '811_a1_dev/'
+    identify_language(mle_method, n, training_dir, dev_dir)
+
+def get_method(method_arg):
+    if method_arg == "--unsmoothed":
+        mle_method = compute_mle
+    elif method_arg == "--laplace":
+        mle_method = compute_mle_laplace
+    elif method_arg == "--interpolation":
+        mle_method = compute_mle_interpolation
+    else:
+        raise ValueError("Invalid option, must be one of --unsmoothed --laplace --interpolation")
+    return mle_method
+
+def identify_language(mle_method, n, training_dir, dev_dir):
 
     training_files = os.listdir(training_dir)
     dev_files = os.listdir(dev_dir)
@@ -39,7 +55,7 @@ def main():
         model = generate_model(n, tokens)
         models_dict.update({file : model})
 
-    print ("dictionary size %d"%(len(models_dict)))
+    # print ("dictionary size %d"%(len(models_dict)))
     num_correct = 0
     test_start_time = time.time()
     for test_file in filter(lambda x: x.endswith('.dev') , dev_files):
@@ -57,26 +73,16 @@ def main():
             ngrams = list(generate_ngrams(tokens, model.n))
             # print("length of tokens %d"%(len(ngrams)))
             probabilities = [mle_method(ngram, model) for ngram in ngrams]
-            map_zeros = True
-            if 0 in probabilities:
+            map_zeros = False
+            if 0 in probabilities and not map_zeros:
                 perplexity = float('nan')
             else:
                 if map_zeros:
-                    logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), map(lambda x: 0.001 if x == 0 else x, probabilities)))
+                    logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), map(lambda x: 0.0001 if x == 0 else x, probabilities)))
                 else:
                     logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), probabilities))
 
-                perplexity = compute_perplexity(logProduct, len(ngrams), True)
-            # print("--------------------%s-----------------"%(file_name))
-            #
-            # print("log product %f"%(logProduct))
-            # doc_prob = math.exp(logProduct)
-            # print("prob %f"%(doc_prob))
-            # print("len %d"%(len(tokens)))
-            # prob_tuples.append((file_name, doc_prob))
-            # # perplexity = doc_prob ** (-1.0/len(tokens))
-            # print("perplexity %f"%(perplexity))
-            # print("---------------------------------------")
+                perplexity = compute_perplexity(logProduct, len(ngrams))
             perplexities.append((model_name, perplexity))
         best_match = min(perplexities, key=lambda x:x[1])
         if best_match[0].split('txt.tra')[0] == test_file.split('txt.dev')[0]:
@@ -92,43 +98,5 @@ def main():
     test_time = finish_time - test_start_time
     print("Training time: %f Test time: %f Total Time %f"%(training_time, test_time, total_time_elapsed))
 
-# assume log product
-def compute_perplexity(prob, N, is_logprob):
-    # print("prob: %f"%(prob))
-
-    perplexity = math.exp((-1.0 / N) * prob)
-    return perplexity
-
-
-def test_compute_perplexity():
-
-    probabilities = [0.1] * 10
-    # print probabilities
-    logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), filter(lambda x: x > 0, probabilities)))
-    # print logProduct
-    perplexity = compute_perplexity(logProduct, 10, True)
-    print "perplexity of textbook example: %f"%(perplexity)
-    exit(0)
-    infile = open('1.tra', 'r')
-
-    n = 2
-    corpus = infile.readlines()
-    tokens = [item for sublist in corpus for item in sublist]
-    model = generate_model(n, tokens)
-
-    devfile = open('1.dev', 'r')
-    dev_corpus = devfile.readlines()
-    dev_tokens = [item for sublist in corpus for item in sublist]
-    ngrams = list(generate_ngrams(dev_tokens, model.n))
-
-    probabilities = [compute_mle_laplace(ngram, model) for ngram in ngrams]
-    # print probabilities
-    logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), filter(lambda x: x > 0, probabilities)))
-    print compute_perplexity(logProduct, len(ngrams), True)
-
-    # model = generate_model(n, tokens)
-def reduce_to_log_prob(probabilities):
-    logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), map(lambda x: 0.001 if x == 0 else x, probabilities)))
-    return logProduct
 
 if __name__ == "__main__": main()
