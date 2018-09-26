@@ -96,10 +96,10 @@ def compute_mle_interpolation(ngram, model):
     if len(ngram) == 1:
         return compute_mle(ngram, model) # should be the same as unsmoothed model
 
-    weighted_mles = []
+
 
     # print model.normalized_lambdas
-    compute_weighted_mles(weighted_mles, model.normalized_lambdas, ngram, model)
+    weighted_mles = compute_weighted_mles(weighted_mles, model.normalized_lambdas, ngram, model)
     # print "MLE: %f"%(sum(weighted_mles))
     return sum(weighted_mles)
 
@@ -108,27 +108,33 @@ def calc_normalized_lambdas(lambdas):
     normalized_lambdas = [float(i)/lambda_sum for i in lambdas]
     return normalized_lambdas
 
-def compute_weighted_mles(mles, lambdas, ngram, model):
+def compute_weighted_mles(lambdas, ngram, model):
 
     # for x in lambdas:
     #
     #     mle = compute_mle(ngram, generate_model(len(ngram), model.tokens)) * x
     #     mles.append(mle)
 
+    all_freqs = model.all_freqs
 
-    if len(ngram) == 1:
-        mle = compute_mle(ngram, generate_model(len(ngram), model.tokens)) * lambdas[len(lambdas)-1]
 
-        # print "MLE of %s: %f"%(str(ngram), mle)
-
-        return mles.append(mle)
-
-    mle = compute_mle(ngram, generate_model(len(ngram), model.tokens)) * lambdas[len(lambdas) - len(ngram)]
-
-    # print "MLE of %s: %f"%(str(ngram), mle)
-    mles.append(mle)
-    ngram_prime = ngram[0:len(ngram)-1]
-    compute_weighted_mles(mles, lambdas, ngram_prime, model)
+    weighted_mles = map(lambda x: compute_mle(ngram, all_freqs[len(lambdas) -len(ngram)],
+                                                all_freqs[len(lambdas)-len(ngram)-1], model))
+    # if len(ngram) == 1:
+    #     mle = compute_mle(ngram, generate_model(len(ngram), model.tokens)) * lambdas[len(lambdas)-1]
+    #
+    #     # print "MLE of %s: %f"%(str(ngram), mle)
+    #
+    #     return mles.append(mle)
+    #
+    # mle = compute_mle(ngram, generate_model(len(ngram), model.tokens)) * lambdas[len(lambdas) - len(ngram)]
+    #
+    # # print "MLE of %s: %f"%(str(ngram), mle)
+    # mles.append(mle)
+    # ngram_prime = ngram[0:len(ngram)-1]
+    # compute_weighted_mles(mles, lambdas, ngram_prime, model)
+    #
+    # return mles
 
 
 def calc_lambdas(model):
@@ -137,8 +143,6 @@ def calc_lambdas(model):
     # print model.all_freqs
     start_time = time.time()
     lambdas = [0] * model.n
-
-
     for gram in model.n_grams:
 
 

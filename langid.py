@@ -60,7 +60,7 @@ def identify_language(mle_method, n, training_dir, dev_dir):
     test_start_time = time.time()
     for test_file in filter(lambda x: x.endswith('.dev') , dev_files):
         # print('computing model for %s ...'%(file))
-
+        file_start_time = time.time()
         infile = open(dev_dir + test_file, 'r')
 
         corpus = infile.readlines()
@@ -84,9 +84,13 @@ def identify_language(mle_method, n, training_dir, dev_dir):
 
                 perplexity = compute_perplexity(logProduct, len(ngrams))
             perplexities.append((model_name, perplexity))
+
+
         best_match = min(perplexities, key=lambda x:x[1])
         if best_match[0].split('txt.tra')[0] == test_file.split('txt.dev')[0]:
             num_correct += 1
+
+        print "%f s to process %s"%(time.time()-file_start_time, test_file)
 
         # print ("lowest perplexity value: %s"%(str(min(perplexities, key=lambda x:x[1]))))
         print ("%s %s %f %d"%(test_file, best_match[0], best_match[1], models_dict.values()[0].n ))
