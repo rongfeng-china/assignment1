@@ -76,12 +76,12 @@ def identify_language(mle_method, n, training_dir, dev_dir):
             ngrams = list(generate_ngrams(tokens, model.n))
             # print("length of tokens %d"%(len(ngrams)))
             probabilities = [mle_method(ngram, model) for ngram in ngrams]
-            map_zeros = False
+            map_zeros = True
             if 0 in probabilities and not map_zeros:
                 perplexity = float('nan')
             else:
                 if map_zeros:
-                    logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), map(lambda x: 0.0001 if x == 0 else x, probabilities)))
+                    logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), map(lambda x: 0.0000001 if x == 0 else x, probabilities)))
                 else:
                     logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), probabilities))
 
@@ -90,6 +90,7 @@ def identify_language(mle_method, n, training_dir, dev_dir):
 
 
         best_match = min(perplexities, key=lambda x:x[1])
+
         if best_match[0].split('txt.tra')[0] == test_file.split('txt.dev')[0]:
             num_correct += 1
 
