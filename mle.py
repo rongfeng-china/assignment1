@@ -85,13 +85,13 @@ def compute_weighted_mles(mles, lambdas, ngram, model):
     #     raise ValueError("length of lambdas must equal length of ngram %d vs. %d"%(len(lambdas), len(ngram)))
     if len(ngram) == 1:
         mle = compute_mle(ngram, generate_model(len(ngram), model.tokens)) * lambdas[len(lambdas)-1]
-        print "MLE of %s: %f"%(str(ngram), mle)
+        # print "MLE of %s: %f"%(str(ngram), mle)
 
         return mles.append(mle)
 
     mle = compute_mle(ngram, generate_model(len(ngram), model.tokens)) * lambdas[len(lambdas) - len(ngram)]
 
-    print "MLE of %s: %f"%(str(ngram), mle)
+    # print "MLE of %s: %f"%(str(ngram), mle)
     mles.append(mle)
     ngram_prime = ngram[0:len(ngram)-1]
     compute_weighted_mles(mles, lambdas, ngram_prime, model)
