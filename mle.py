@@ -32,6 +32,7 @@ def main():
     print compute_mle(('e', 'a', 's'), model)
     print compute_mle_laplace(('e', 'a', 's'), model)
 
+
 def test():
     method = sys.argv[1]
     infile = open('811_a1_train/' + 'udhr-eng.txt.tra', 'r')
@@ -117,30 +118,22 @@ def compute_mle_laplace(ngram, model):
     if len(ngram) != model.n:
         raise ValueError('Cannot compute on n-gram with length %d on model with length %d'%(len(ngram), model.n))
 
-    if len(ngram) == 1:
-        print model.tokens
-        gram_count = float(model.n_grams.count(ngram))
-        print "gram count %f"%(gram_count)
-        print "number of tokens%d"%(len(model.tokens))
-        mle = gram_count/ len(model.tokens)
-        return mle
-
     ngram_prime = ngram[0:len(ngram)-1]
 
     vocab = set(model.tokens)
 
-    # print "ngram " + str(ngram)
-    #
-    # print "ngram prime " + str(ngram_prime)
     print "ngram freq dist %f"%(model.ngram_freqDist.freq(ngram))
     print "nprime freq dist %f"%(model.nprime_freqDist.freq(ngram_prime))
-    print len(vocab)
-    # add this to normalize frequencies; count of nprime will be 1 off and this throws off low counts.
-    # normalization_factor = ( + len(vocab)) * 1.0 / (len(vocab) len(model.tokens)-(len(ngram_prime)-1)))
-    # print "normalization factor" + str(normalization_factor)
-    # ngram_normalizationfactor = (len(model.tokens)-(len(ngram)-1) / (len(model.tokens)-(len(ngram)-1) + len(vocab))
-    # nprime = (len(model.tokens)-(len(ngram)-1) / (len(model.tokens)-(len(ngram)-1) + len(vocab))
-    mle = (model.n_grams.count(ngram) + 1.) / (model.nprime_grams.count(ngram_prime) + len(vocab))
+    # print len(vocab)
+    n_gram_count = model.ngram_freqDist.freq(ngram) * model.ngram_freqDist.N() + 1
+    n_prime_count = model.nprime_freqDist.freq(ngram_prime) * model.nprime_freqDist.N() + len(vocab)
+    if len(ngram) == 1:
+        n_prime_count = len(vocab) + len(model.tokens)
+    print("the n gram: %s"%(str(ngram)))
+    print "ngram count %f"%(n_gram_count)
+    print "nprime count %f"%(n_prime_count)
+
+    mle = n_gram_count / n_prime_count
 
     return mle
 

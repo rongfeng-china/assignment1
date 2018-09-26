@@ -114,6 +114,8 @@ def test_compute_perplexity():
     print compute_perplexity(logProduct, len(ngrams), True)
 
     # model = generate_model(n, tokens)
-
+def reduce_to_log_prob(probabilities):
+    logProduct = reduce((lambda x, y: x + y), map(lambda x: math.log(x), map(lambda x: 0.001 if x == 0 else x, probabilities)))
+    return logProduct
 
 if __name__ == "__main__": main()
