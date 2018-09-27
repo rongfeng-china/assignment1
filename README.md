@@ -27,5 +27,8 @@ training file with the lowest perplexity for the test file, the 3rd column lists
 the perplexity, and the 4th column shows the value of *n* for the n-grams used
 to train the language model.
 
-NOTE: For single files, you must create the appropriate directories and place the file
-in the associated directory
+NOTE: For single files, you must create the appropriate directories and place the file within the associated directory.
+
+## Other Files
+
+`generate_ngram.py`, `mle.py`, `perplexity.py`, and `langid.py` are required to run `langid`. The other files included are unit tests and utilities used during the parameter tuning portion of the assignment

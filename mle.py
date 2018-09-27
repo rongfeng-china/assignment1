@@ -135,19 +135,11 @@ def compute_weighted_mles(lambdas, starting_ngram, model):
         weighted_mle = lambdas[len(lambdas)-len(ngram)] * mle
         weighted_mles.append(weighted_mle)
 
-    # print "weighted MLES"
-    # print weighted_mles
-    #
-    # print "lambdas"
-    # print lambdas
     return weighted_mles
 
 
 
 def calc_lambdas(model):
-    # print "calc lambdas called..."
-    # print model.all_grams
-    # print model.all_freqs
     start_time = time.time()
     lambdas = [0] * model.n
     for gram in model.n_grams:
@@ -215,12 +207,7 @@ def compute_mle_arbitrary(ngram, ngram_freqDist, nprime_freqDist, model):
         return mle
     ngram_prime = ngram[0:len(ngram)-1]
     normalization_factor = ((len(model.tokens)-(len(ngram)-1)) * 1.0 / (len(model.tokens)-(len(ngram_prime)-1)))
-    # print "normalization factor" + str(normalization_factor)
-    # print "frequencies"
-    # print "%s %f"%(str(ngram), ngram_freqDist.freq(ngram))
-    # print "%s %f"%(str(ngram_prime), nprime_freqDist.freq(ngram_prime))
-    # print (ngram_freqDist)
-    # print str(nprime_freqDist)
+
     try:
         mle = ngram_freqDist.freq(ngram) / nprime_freqDist.freq(ngram_prime) * normalization_factor
 
@@ -230,9 +217,6 @@ def compute_mle_arbitrary(ngram, ngram_freqDist, nprime_freqDist, model):
 
 def compute_mle(ngram, model):
 
-    # if len(ngram) != model.n:
-    #     print "The ngram%s"%(ngram)
-    #     raise ValueError("Cannot compute on n-gram with length %d on model with length %d"%(len(ngram), model.n))
     if len(ngram) == 1:
 
         gram_count = float(model.n_grams.count(ngram))

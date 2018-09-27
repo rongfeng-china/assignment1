@@ -11,6 +11,8 @@ def main():
 
 
     method_arg = sys.argv[1]
+    training_dir = sys.argv[2]
+    test_dir = sys.argv[3]
 
     n = 2
     if method_arg == "--unsmoothed":
@@ -21,6 +23,7 @@ def main():
         n = 3
     elif method_arg == "--interpolation":
         mle_method = compute_mle_interpolation
+        n = 4
     else:
         raise ValueError("Invalid option, must be one of --unsmoothed --laplace --interpolation")
 
@@ -41,6 +44,8 @@ def get_method(method_arg):
     return mle_method
 
 def identify_language(mle_method, n, training_dir, dev_dir):
+
+
 
     training_files = os.listdir(training_dir)
     dev_files = os.listdir(dev_dir)
