@@ -146,18 +146,5 @@ class TestInterpolation(unittest.TestCase):
         previous_best = 0.14
         self.assertTrue((previous_best * 0.90)<= results[1] <= (previous_best * 1.1))
 
-
-
-
-
-
-
-# class TestInterpolation(unittest.TestCase):
-
-if __name__ == '__time_mle__':
-    time_mle(sys.argv[1], sys.argv[2])
 if __name__ == '__main__':
     unittest.main()
-    # time_mle(2, compute_mle_laplace)
-
-    # unittest.main()
