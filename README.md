@@ -18,17 +18,22 @@ and `<test_dir>` is the path to the test directory
 For example, to identify the language using an unsmoothed language model
 with the training files in `811_a1_train` and the test files located at `811_a1_test`
 you would run
-```python langid.py --unsmoothed 811_a1_train/ 811_a1_test/```
 
-The expected output would be something like this:
+
+The program prints to `stdout` and the expected output would be something like this:
 ```udhr-als.txt.dev udhr-als.txt.tra 20.214536 1```
+
+
 where the first column lists the name of the test file, the 2nd column lists the
 training file with the lowest perplexity for the test file, the 3rd column lists
 the perplexity, and the 4th column shows the value of *n* for the n-grams used
 to train the language model.
 
+To save the output to a file, you can simply redirect the output, for example:
+```python langid.py --unsmoothed 811_a1_train/ 811_a1_test/ > output.txt```
+
 NOTE: For single files, you must create the appropriate directories and place the file within the associated directory.
 
 ## Other Files
 
-`generate_ngram.py`, `mle.py`, `perplexity.py`, and `langid.py` are required to run `langid`. The other files included are unit tests and utilities used during the parameter tuning portion of the assignment
+`generate_ngram.py`, `mle.py`, `perplexity.py`, and `langid.py` are required to run `langid`. The other files included are unit tests and utilities used during the parameter tuning portion of the assignment.  They are not required to run `langid.py`

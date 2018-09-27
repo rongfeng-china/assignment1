@@ -17,7 +17,7 @@ def main():
     n = 2
     if method_arg == "--unsmoothed":
         mle_method = compute_mle
-        n = 2
+        n = 3
     elif method_arg == "--laplace":
         mle_method = compute_mle_laplace
         n = 3
@@ -26,11 +26,11 @@ def main():
         n = 4
     else:
         raise ValueError("Invalid option, must be one of --unsmoothed --laplace --interpolation")
-
-    training_dir = '811_a1_train/'
+    #
+    # training_dir = '811_a1_train/'
+    # # dev_dir = '811_a1_dev/'
     # dev_dir = '811_a1_dev/'
-    dev_dir = '811_a1_dev/'
-    identify_language(mle_method, n, training_dir, dev_dir)
+    identify_language(mle_method, n, training_dir, test_dir)
 
 def get_method(method_arg):
     if method_arg == "--unsmoothed":
@@ -66,7 +66,7 @@ def identify_language(mle_method, n, training_dir, dev_dir):
     # print ("dictionary size %d"%(len(models_dict)))
     num_correct = 0
     test_start_time = time.time()
-    for test_file in filter(lambda x: x.endswith('.dev') , dev_files):
+    for test_file in dev_files:
         # print('computing model for %s ...'%(file))
         file_start_time = time.time()
         infile = open(dev_dir + test_file, 'r')
@@ -104,12 +104,12 @@ def identify_language(mle_method, n, training_dir, dev_dir):
         # print ("lowest perplexity value: %s"%(str(min(perplexities, key=lambda x:x[1]))))
         print ("%s %s %f %d"%(test_file, best_match[0], best_match[1], models_dict.values()[0].n ))
         # print perplexity_dict['udhr-als.txt.tra']
-    print "number correct: %d"%(num_correct)
+    # print "number correct: %d"%(num_correct)
     finish_time = time.time()
     total_time_elapsed = finish_time - training_start_time
     training_time = test_start_time - training_start_time
     test_time = finish_time - test_start_time
-    print("Training time: %f Test time: %f Total Time %f"%(training_time, test_time, total_time_elapsed))
+    # print("Training time: %f Test time: %f Total Time %f"%(training_time, test_time, total_time_elapsed))
 
 
 if __name__ == "__main__": main()
